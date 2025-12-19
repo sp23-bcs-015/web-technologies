@@ -2,6 +2,118 @@
 <html>
 <head>
   <%- include("../partials/head", { title }) %>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 2rem 0;
+      color: #2c3e50;
+      font-size: 2rem;
+    }
+
+    table {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto 3rem auto;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background-color: #27ae60;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #eafaf1;
+    }
+
+    button {
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    form {
+      display: inline;
+    }
+
+    input[type="hidden"] {
+      display: none;
+    }
+
+    /* Confirm button */
+    form input[value="Confirmed"] + button {
+      background-color: #2ecc71;
+      color: #fff;
+    }
+
+    form input[value="Confirmed"] + button:hover {
+      background-color: #27ae60;
+    }
+
+    /* Cancel button */
+    form input[value="Cancelled"] + button {
+      background-color: #e74c3c;
+      color: #fff;
+    }
+
+    form input[value="Cancelled"] + button:hover {
+      background-color: #c0392b;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      tr {
+        margin-bottom: 1rem;
+      }
+      th, td {
+        text-align: right;
+        padding: 0.5rem;
+        border: none;
+        position: relative;
+      }
+      th::before, td::before {
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 1rem;
+        font-weight: bold;
+        text-align: left;
+      }
+      td::before {
+        content: attr(data-label);
+      }
+      thead {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -9,7 +121,7 @@
 
 <h1>Admin Orders Dashboard</h1>
 
-<table border="1" cellpadding="10" cellspacing="0">
+<table>
   <thead>
     <tr>
       <th>Order ID</th>
@@ -23,20 +135,20 @@
   <tbody>
     <% orders.forEach(order => { %>
       <tr>
-        <td><%= order._id %></td>
-        <td><%= order.customerName %></td>
-        <td>PKR <%= order.totalAmount %></td>
-        <td><%= order.status %></td>
-        <td><%= order.createdAt.toLocaleString() %></td>
-        <td>
+        <td data-label="Order ID"><%= order._id %></td>
+        <td data-label="Customer"><%= order.customerName %></td>
+        <td data-label="Total Amount">PKR <%= order.totalAmount %></td>
+        <td data-label="Status"><%= order.status %></td>
+        <td data-label="Order Date"><%= order.createdAt.toLocaleString() %></td>
+        <td data-label="Actions">
           <% if(order.status !== 'Confirmed') { %>
-            <form method="POST" action="/admin/orders/<%= order._id %>/status" style="display:inline">
+            <form method="POST" action="/admin/orders/<%= order._id %>/status">
               <input type="hidden" name="status" value="Confirmed">
               <button type="submit">Confirm</button>
             </form>
           <% } %>
           <% if(order.status !== 'Cancelled') { %>
-            <form method="POST" action="/admin/orders/<%= order._id %>/status" style="display:inline">
+            <form method="POST" action="/admin/orders/<%= order._id %>/status">
               <input type="hidden" name="status" value="Cancelled">
               <button type="submit">Cancel</button>
             </form>

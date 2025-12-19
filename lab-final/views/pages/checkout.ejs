@@ -2,6 +2,110 @@
 <html>
 <head>
   <%- include("../partials/head", { title: "Checkout" }) %>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      color: #2c3e50;
+      font-size: 2rem;
+    }
+
+    #checkoutItems {
+      max-width: 700px;
+      margin: 0 auto 1.5rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .checkout-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #fdfdfd, #eaeaea);
+      box-shadow: 3px 3px 6px rgba(0,0,0,0.05),
+                  -3px -3px 6px rgba(255,255,255,0.7);
+    }
+
+    .checkout-item p {
+      margin: 0;
+      color: #34495e;
+      font-size: 1rem;
+    }
+
+    #total {
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+      text-align: right;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    form#checkoutForm {
+      max-width: 500px;
+      margin: 0 auto 3rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background-color: #fff;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+
+    form#checkoutForm input {
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    form#checkoutForm input:focus {
+      border-color: #27ae60;
+      box-shadow: 0 0 5px rgba(39, 174, 96, 0.3);
+    }
+
+    form#checkoutForm button {
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      background-color: #27ae60;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    form#checkoutForm button:hover {
+      background-color: #1e8449;
+    }
+
+    @media (max-width: 600px) {
+      #checkoutItems, #total, form#checkoutForm {
+        width: 90%;
+      }
+      .checkout-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #total {
+        text-align: left;
+      }
+    }
+  </style>
 </head>
 <body>
 <%- include("../partials/header") %>
@@ -32,7 +136,7 @@ let total = 0;
 // Show cart items
 itemsDiv.innerHTML = cart.map(item => {
   total += item.price * item.qty;
-  return `<p>${item.name} × ${item.qty} - PKR ${item.price}</p>`;
+  return `<div class="checkout-item"><p>${item.name} × ${item.qty} - PKR ${item.price}</p></div>`;
 }).join("");
 
 totalDiv.innerText = "Total: PKR " + total;
