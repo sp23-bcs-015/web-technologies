@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%- include("../partials/head", { title }) %>
+</head>
+<body>
+
+<%- include("../partials/header") %>
+
+<h1>Order Placed Successfully 🎉</h1>
+<p>Your Order ID:</p>
+<h2><%= orderId %></h2>
+
+<a href="/products">Continue Shopping</a>
+
+<%- include("../partials/footer") %>
+</body>
+</html>

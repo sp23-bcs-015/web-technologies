@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("../partials/head", { title }) %>
+</head>
+<body>
+
+<%- include("../partials/header") %>
+
+<section class="products-page">
+  <h1 class="page-title">Our Products</h1>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <select id="categoryFilter">
+      <option value="">All Categories</option>
+    </select>
+
+    <div class="price-filter">
+      <input type="number" id="minPrice" placeholder="Min Price">
+      <input type="number" id="maxPrice" placeholder="Max Price">
+      <button id="applyFilter">Apply</button>
+    </div>
+  </div>
+
+  <div class="products-grid" id="productsGrid"></div>
+</section>
+
+
+<script>
+let allProducts = [];
+
+async function fetchProducts() {
+  const res = await fetch("/api/products");
+  const json = await res.json();
+  return json.data || [];
+}
+
+function populateCategories(products) {
+  const select = document.getElementById("categoryFilter");
+  const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+
+  categories.forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    select.appendChild(option);
+  });
+}
+
+function render(products) {
+  const grid = document.getElementById("productsGrid");
+
+  if (!products.length) {
+    grid.innerHTML = "<p>No products available.</p>";
+    return;
+  }
+
+  grid.innerHTML = products.map(p => `
+    <div class="product-card">
+      <img src="${p.imageUrl || '/assets/placeholder.png'}" alt="${p.name}">
+      <div class="card-body">
+        <h3>${p.name}</h3>
+        <span class="category">${p.category || "Uncategorized"}</span>
+        <p>${p.description || ""}</p>
+        <span class="price">PKR ${p.price}</span>
+        <br><br>
+       <button onclick='addToCart("${p.name}", ${p.price}, "${p.category || ""}", "${p.description || ""}")'>
+  Add to Cart
+</button>
+
+
+      </div>
+    </div>
+  `).join("");
+}
+
+function applyFilters() {
+  const category = document.getElementById("categoryFilter").value;
+  const min = Number(document.getElementById("minPrice").value) || 0;
+  const max = Number(document.getElementById("maxPrice").value) || Infinity;
+
+  const filtered = allProducts.filter(p => {
+    return (
+      (!category || p.category === category) &&
+      p.price >= min &&
+      p.price <= max
+    );
+  });
+
+  render(filtered);
+}
+
+document.getElementById("applyFilter").onclick = applyFilters;
+document.getElementById("categoryFilter").onchange = applyFilters;
+
+async function load() {
+  allProducts = await fetchProducts();
+  populateCategories(allProducts);
+  render(allProducts);
+}
+
+function addToCart(name, price, category, description) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  const existing = cart.find(item => item.name === name);
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      name,
+      price,
+      category,
+      description,
+      qty: 1
+    });
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  alert("Product added to cart");
+}
+
+load();
+</script>
+
+
+
+<%- include("../partials/footer") %>
+</body>
+</html>

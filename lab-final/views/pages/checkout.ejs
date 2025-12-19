@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%- include("../partials/head", { title: "Checkout" }) %>
+</head>
+<body>
+<%- include("../partials/header") %>
+
+<h1>Checkout</h1>
+
+<div id="checkoutItems"></div>
+<h3 id="total"></h3>
+
+<!-- Form submits to /orders -->
+<form id="checkoutForm" action="/orders" method="POST">
+  <input type="text" name="customerName" id="name" placeholder="Your Name" required>
+  <input type="email" name="email" id="email" placeholder="Email" required>
+  <input type="hidden" name="items" id="itemsInput">
+  <input type="hidden" name="totalAmount" id="totalInput">
+  <button type="submit">Place Order</button>
+</form>
+
+<script>
+const cart = JSON.parse(localStorage.getItem("cart")) || [];
+const itemsDiv = document.getElementById("checkoutItems");
+const totalDiv = document.getElementById("total");
+const itemsInput = document.getElementById("itemsInput");
+const totalInput = document.getElementById("totalInput");
+
+let total = 0;
+
+// Show cart items
+itemsDiv.innerHTML = cart.map(item => {
+  total += item.price * item.qty;
+  return `<p>${item.name} × ${item.qty} - PKR ${item.price}</p>`;
+}).join("");
+
+totalDiv.innerText = "Total: PKR " + total;
+
+// Populate hidden inputs before form submit
+document.getElementById("checkoutForm").addEventListener("submit", e => {
+  if (!cart.length) {
+    e.preventDefault();
+    alert("Your cart is empty!");
+    return;
+  }
+
+  itemsInput.value = JSON.stringify(cart.map(item => ({
+    productName: item.name,
+    price: item.price,
+    quantity: item.qty
+  })));
+
+  totalInput.value = total;
+
+  // Clear localStorage cart after submit
+  localStorage.removeItem("cart");
+});
+</script>
+
+<%- include("../partials/footer") %>
+</body>
+</html>

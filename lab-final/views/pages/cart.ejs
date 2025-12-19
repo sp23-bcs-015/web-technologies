@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("../partials/head", { title: "Cart" }) %>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+    .cart-page {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .cart-page h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #333;
+    }
+    #cartItems {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #fafafa;
+    }
+    .cart-item h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #222;
+    }
+    .cart-item p {
+      margin: 0.2rem 0;
+      color: #555;
+    }
+    .cart-item button {
+      background-color: #e74c3c;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .cart-item button:hover {
+      background-color: #c0392b;
+    }
+    #totalPrice {
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-align: right;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+    .cart-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .cart-actions button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    .cart-actions .clear-cart {
+      background-color: #f39c12;
+      color: #fff;
+    }
+    .cart-actions .clear-cart:hover {
+      background-color: #d35400;
+    }
+    .cart-actions .checkout {
+      background-color: #2ecc71;
+      color: #fff;
+    }
+    .cart-actions .checkout:hover {
+      background-color: #27ae60;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 0.5rem 0;
+    }
+    @media (max-width: 600px) {
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #totalPrice {
+        text-align: left;
+      }
+      .cart-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<%- include("../partials/header") %>
+
+<section class="cart-page">
+  <h1>My Cart</h1>
+
+  <div id="cartItems"></div>
+
+  <h2 id="totalPrice"></h2>
+
+  <div class="cart-actions">
+    <button class="clear-cart" onclick="clearCart()">Clear Cart</button>
+
+    <!-- Use form to go to checkout route -->
+    <form action="/checkout" method="get" style="display:inline">
+      <button type="submit" class="checkout">Proceed to Checkout</button>
+    </form>
+  </div>
+</section>
+
+<script>
+function loadCart() {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const container = document.getElementById("cartItems");
+  const totalEl = document.getElementById("totalPrice");
+
+  if (!cart.length) {
+    container.innerHTML = "<p>Your cart is empty.</p>";
+    totalEl.textContent = "";
+    return;
+  }
+
+  let total = 0;
+
+  container.innerHTML = cart.map((item, index) => {
+    total += item.price * item.qty;
+
+    return `
+      <div class="cart-item">
+        <div>
+          <h3>${item.name}</h3>
+          <p>Price: PKR ${item.price}</p>
+          <p>Quantity: ${item.qty}</p>
+        </div>
+        <button onclick="removeItem(${index})">Remove</button>
+      </div>
+      <hr>
+    `;
+  }).join("");
+
+  totalEl.textContent = "Total: PKR " + total;
+}
+
+function removeItem(index) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  cart.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  loadCart();
+}
+
+function clearCart() {
+  localStorage.removeItem("cart");
+  loadCart();
+}
+
+loadCart();
+</script>
+
+<%- include("../partials/footer") %>
+</body>
+</html>

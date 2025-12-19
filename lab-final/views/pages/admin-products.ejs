@@ -11,11 +11,30 @@
   <div class="admin-header">
     <h1>Admin Products</h1>
     <button class="btn-primary" id="openCreate">+ Create Product</button>
+  <a href="/admin/orders"><button class="btn-secondary">Show Orders</button></a>
   </div>
 
   <div id="alertBox"></div>
 
   <div class="products-grid" id="productsGrid"></div>
+</section>
+
+<!-- Orders Section -->
+<section id="ordersSection" style="display:none; margin-top: 2rem;">
+  <h2>Admin Orders Dashboard</h2>
+  <table border="1" cellpadding="5" cellspacing="0" id="ordersTable">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Total Amount</th>
+        <th>Status</th>
+        <th>Order Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="ordersBody"></tbody>
+  </table>
 </section>
 
 <!-- MODAL -->
@@ -53,14 +72,13 @@ const imageInput = document.getElementById("imageUrl");
 const descInput = document.getElementById("description");
 const categoryInput = document.getElementById("category");
 
-
 document.getElementById("openCreate").onclick = () => openCreate();
 document.getElementById("closeModal").onclick = () => closeModal();
 
 function showAlert(type, msg) {
   document.getElementById("alertBox").innerHTML =
     `<div class="alert ${type}">${msg}</div>`;
-}+
+}
 
 function openCreate() {
   modalTitle.textContent = "Create Product";
@@ -138,7 +156,6 @@ document.getElementById("productForm").onsubmit = async e => {
   category: categoryInput.value
 };
 
-
   const id = productId.value;
   await fetch(id ? `/api/products/${id}` : "/api/products", {
     method: id ? "PUT" : "POST",
@@ -155,6 +172,50 @@ async function load() {
 }
 
 load();
+
+// --------------------- Show Orders Feature ---------------------
+
+const showOrdersBtn = document.getElementById("showOrdersBtn");
+const ordersSection = document.getElementById("ordersSection");
+const ordersBody = document.getElementById("ordersBody");
+
+showOrdersBtn.onclick = async () => {
+  // Toggle visibility
+  ordersSection.style.display = ordersSection.style.display === "none" ? "block" : "none";
+
+  if (ordersSection.style.display === "block") {
+    // Fetch orders from admin-only route
+    const res = await fetch("/admin/orders?email=admin@shop.com"); // adminOnly middleware needs email
+    const orders = await res.json(); // JSON response of orders
+
+    // Render orders in table
+    ordersBody.innerHTML = orders.map(order => `
+      <tr>
+        <td>${order._id}</td>
+        <td>${order.customerName}</td>
+        <td>PKR ${order.totalAmount}</td>
+        <td>${order.status}</td>
+        <td>${new Date(order.createdAt).toLocaleString()}</td>
+        <td>
+          ${order.status !== 'Confirmed' ? `<button onclick="updateOrderStatus('${order._id}','Confirmed')">Confirm</button>` : ''}
+          ${order.status !== 'Cancelled' ? `<button onclick="updateOrderStatus('${order._id}','Cancelled')">Cancel</button>` : ''}
+        </td>
+      </tr>
+    `).join("");
+  }
+};
+
+async function updateOrderStatus(id, status) {
+  await fetch(`/admin/orders/${id}/status`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status, email: "admin@shop.com" }) // email needed for adminOnly middleware
+  });
+
+  // Refresh orders after update
+  showOrdersBtn.click(); // hide
+  showOrdersBtn.click(); // show & reload
+}
 </script>
 
 <%- include("../partials/footer") %>
